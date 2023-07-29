@@ -1,49 +1,45 @@
 const { v4: uuidv4 } = require('uuid')
 import { getHash, setHash } from "./cachedb";
 
-let cache:any = {};
+let cache: any = {};
 
-export async function updateCache(uuid: string)
-{
-  let key:string = uuidv4();
-  let token:string = uuidv4();
-  key = key.replace(/-/g,"");
-  token = token.replace(/-/g,"");
-  
-  //redisに登録
-  await setHash(key, "udid", uuid);
-  await setHash(key, "token", token);
-  await setHash(key, "time", String((new Date()).getTime()));
-  
-  /*
-  cache[key] = {
-    udid: uuid,
-    token: token,
-    time: (new Date()).getTime()
-  };
-  */
-  return key;
+export async function updateCache(uuid: string) {
+	let key: string = uuidv4();
+	let token: string = uuidv4();
+	key = key.replace(/-/g, "");
+	token = token.replace(/-/g, "");
+
+	//redisに登録
+	await setHash(key, "udid", uuid);
+	await setHash(key, "token", token);
+	await setHash(key, "time", String((new Date()).getTime()));
+
+	/*
+	cache[key] = {
+	  udid: uuid,
+	  token: token,
+	  time: (new Date()).getTime()
+	};
+	*/
+	return key;
 }
 
-export async function updateData(key: string, dataKey: string, data: any)
-{
-  //if(!cache[key]) return false;
-  
-  await setHash(key, dataKey, data);
-  
-  //cache[key][dataKey] = data;
-  return true;
+export async function updateData(key: string, dataKey: string, data: any) {
+	//if(!cache[key]) return false;
+
+	await setHash(key, dataKey, data);
+
+	//cache[key][dataKey] = data;
+	return true;
 }
 
-export async function updateToken(key: string)
-{
-	if(!cache[key])
-	{
+export async function updateToken(key: string) {
+	if (!cache[key]) {
 		return "";
 	}
 
-	let token:string = uuidv4();
-	token = token.replace(/-/g,"");
+	let token: string = uuidv4();
+	token = token.replace(/-/g, "");
 
 	await setHash(key, "token", token);
 	await setHash(key, "time", String((new Date()).getTime()));
@@ -53,15 +49,13 @@ export async function updateToken(key: string)
 	return token;
 }
 
-export async function getCache(key: string)
-{
-	let data:any = await getHash(key);
+export async function getCache(key: string) {
+	let data: any = await getHash(key);
 	//stringで格納されているので、intのものは戻す
-	for(let k in data)
-	{
-		if(isNaN(parseInt(data[k]))) continue;
-		if(k == "udid") continue; //パースできるようなのでcontinue
-		
+	for (let k in data) {
+		if (isNaN(parseInt(data[k]))) continue;
+		if (k == "udid") continue; //パースできるようなのでcontinue
+
 		data[k] = parseInt(data[k]);
 	}
 	return data;
@@ -76,13 +70,12 @@ export async function getCache(key: string)
 	*/
 }
 
-export async function setCache(key: string, vKey:string, value: any)
-{
+export async function setCache(key: string, vKey: string, value: any) {
 	await setHash(key, vKey, value)
 	await setHash(key, "time", String((new Date()).getTime()));
 
 	return getCache(key);
-	
+
 	/*
 	if(!cache[key])
 	{
@@ -98,8 +91,7 @@ export async function setCache(key: string, vKey:string, value: any)
 }
 
 //Redisの場合は必要ない
-function cleanup()
-{
+function cleanup() {
 	//TODO:
 	console.log(cache);
 }
